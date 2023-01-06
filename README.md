@@ -3,6 +3,6 @@ picture_r是一个在终端运行的画板，使用shell脚本编写，支持256
 
 保存文件格式是原始的终端ASCII色彩编码，可以直接使用echo -e来打开查看：
 
-echo -e \`cat xxx.save\`" \e[0m"
+echo -e \`cat xxx.save\`"\e[0m"
 
 https://github.com/callcz/picture_r/blob/main/%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20230106134646.png?raw=true
