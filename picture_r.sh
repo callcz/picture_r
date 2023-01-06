@@ -34,7 +34,7 @@ total=$((width*hight_real))
 #功能键提示
 fun_tips_l(){
 	local begin=$((hight_real+1))
-	printf "\e[$begin;1H""\e[0m"'P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH'
+	printf "\e[$begin;1H""\e[0m"'P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW KEYS'
 }
 
 
@@ -157,7 +157,7 @@ space_l(){
 #伪光标
 focus_x=1
 focus_y=1
-focus_color_code=36
+focus_color_code=0
 focus_x_max=$width
 focus_y_max=$hight
 open_palette=close
