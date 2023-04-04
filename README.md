@@ -9,7 +9,7 @@ https://github.com/callcz/picture_r/blob/main/%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B
 
 已知待修正：
 
-调色板方向键跨区选择颜色的逻辑
+调色板方向键选色逻辑
 
 计划添加功能：
 
