@@ -34,7 +34,7 @@ total=$((width*hight_real))
 #功能键提示
 fun_tips_l(){
 	local begin=$((hight_real+1))
-	printf "\e[$begin;1H""\e[0m"'P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW KEYS'
+	printf "\e[$begin;1H""\e[0m""P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW_KEYS CODE=$focus_color_code"
 }
 
 
@@ -100,12 +100,12 @@ palette_l(){
 		fi
 		if [[ $i -le 15 ]]
 		then
-			echo -n "\e[${y:=$((focus_row+8))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
+			echo -n "\e[${y:=$((focus_row+1))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
 		elif [[ $i -ge 232 ]]
 		then
-			echo -n "\e[${y:=$((focus_row+7))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
+			echo -n "\e[${y:=$((focus_row+8))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
 		else
-			echo -n "\e[${y:=$((focus_row+1))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
+			echo -n "\e[${y:=$((focus_row+2))};${x:=$((focus_x+1))}f""\e[48;5;${i};38;5;0m "
 		fi
 		if [[ $x -lt $((focus_x+36)) ]]
 		then
@@ -163,6 +163,7 @@ focus_y_max=$hight
 open_palette=close
 while :
 do
+	fun_tips_l
 	unset key
 	focus_seq=$((((((((((focus_y+1))/2))-1))*$width))+focus_x))
 	focus_paper_bg_color_code=`echo $paper|awk -F'm▄' -v focus_seq=$focus_seq '{print $focus_seq}'|awk -F';' '{print $4}'`
@@ -182,9 +183,13 @@ do
 	while [[ ! $key ]]
 	do
 		parity=`date +%s`
-		if [[ $((${parity:-0}%2)) == 0 ]]
+		if [[ $((${parity:-0}%2)) == 0 || $delay_ss -gt 0 ]]
 		then
 			echo -en $focus_color
+			if [[ $delay_ss -gt 0 ]]
+			then
+				((delay_ss--))
+			fi
 		else
 			echo -en $focus_color_ss
 		fi
@@ -194,6 +199,7 @@ do
 	case $key in
 		up)
 			((focus_y--))
+			delay_ss=100
 			if [[ $focus_y -lt 1 ]]
 			then
 				focus_y=$focus_y_max
@@ -201,6 +207,7 @@ do
 			;;
 		down)
 			((focus_y++))
+			delay_ss=100
 			if [[ $focus_y -gt $focus_y_max ]]
 			then
 				focus_y=1
@@ -208,6 +215,7 @@ do
 			;;
 		left)
 			((focus_x--))
+			delay_ss=100
 			if [[ $focus_x -lt 1 ]]
 			then
 				focus_x=$focus_x_max
@@ -215,6 +223,7 @@ do
 			;;
 		right)
 			((focus_x++))
+			delay_ss=100
 			if [[ $focus_x -gt $focus_x_max ]]
 			then
 				focus_x=1
@@ -306,7 +315,7 @@ do
 						echo -en $(echo $palette|awk -v palette_focus=${palette_focus:=1} '{print $palette_focus}')▒
 						echo -en $(echo $focus_color|awk -F';' -v _focus=$((${palette_focus:=1}-1)) -v OFS=';' '{gsub(/^[0-9]*/,_focus,$7);print}')
 					else
-						echo -en $(echo $palette|awk -v palette_focus=${palette_focus:=1} '{gsub(0m,15m,$palette_focus);print $palette_focus}')▒
+						echo -en $(echo $palette|awk -v palette_focus=${palette_focus:=1} '{gsub("0m","15m",$palette_focus);print $palette_focus}')▒
 						echo -en $focus_color
 					fi
 				done
