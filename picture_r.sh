@@ -6,15 +6,14 @@
 	if [[ -z `ps -ef|grep picture.sh|grep bash|awk '{print $2}'` ]]
 	then
 		echo Plase run \"./picture.sh\" .
-		my_exit_l
+		exit
 	fi
 ################################
-echo -e "\033c""\e[?25l"
-
 my_exit_l() {
 	echo -en "\E[0m""\e[48;1f""\033[?25h"
 	exit
 }
+echo -e "\033c""\e[?25l"
 trap 'my_exit_l' 2
 trap 'key=up' 25
 trap 'key=down' 26
@@ -26,15 +25,63 @@ trap 'key=s' 21
 trap 'key=m' 23
 trap 'key=p' 24
 
-width=64
-hight=64
+while [[ -n $@ ]]
+do
+	case $1 in
+		'--help')
+			echo head -n2 $$
+			my_exit_l
+			;;
+		-w)
+			shift
+			if [[ -n "`echo $1|sed 's/[0-9]//g'`" ]]
+			then
+				echo unknow option \'$1\'
+			else
+				width=$1
+				shift
+			fi
+			;;
+		-h)
+			shift
+			if [[ -n "`echo $1|sed 's/[0-9]//g'`" ]]
+			then
+				echo unknow option \'$1\'
+			else
+				hight=$1
+				shift
+			fi
+			;;
+		*)
+			if [[ -a $1 ]]
+			then
+				paper=`cat $1`
+				paper_size=($(awk -F▄ '{print $(NF-1)}' $1|sed -e 's/\\e\[//g' -e 's/f.*$//' -e 's/;/ /'))
+				width=${paper_size[1]}
+				hight=$((${paper_size[0]}*2))
+				echo -en $paper"\e[0m"
+				break
+			else
+				echo "$1 File does not exist !"
+				my_exit_l
+			fi
+			;;
+	esac
+done
+if [[ ! $width ]]
+then
+	width=64
+fi
+if [[ ! $hight ]]
+then
+	hight=64
+fi
 hight_real=$((hight/2))
 total=$((width*hight_real))
-
 #功能键提示
 fun_tips_l(){
 	local begin=$((hight_real+1))
-	printf "\e[$begin;1H""\e[0m""P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW_KEYS CODE=$focus_color_code"
+	printf "\e[$begin;1H""\e[0m""P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW_KEYS color=$focus_color_code Q=EXIT"
 }
 
 
@@ -69,20 +116,11 @@ paper_l(){
 		fi
 	done
 }
-if [[ ! $1 ]]
+if [[ ! $paper ]]
 then
 	paper=`paper_l`
 	echo -en $paper"\e[0m"
-elif [[ $1 == '--help' || $1 == '-h' ]]
-then
-	echo head -n2 $$
-elif [[ ! -a $1 ]]
-then
-	echo "$1 File does not exist !"
-	my_exit_l
-else
-	paper=`cat $1`
-	echo -en $paper"\e[0m"
+
 fi
 fun_tips_l
 
@@ -230,6 +268,7 @@ do
 			fi
 			;;
 		r)
+			echo -e "\033c""\e[?25l"
 			echo -en $paper"\e[0m"
 			;;
 		space)
@@ -253,60 +292,87 @@ do
 				unset key
 				while :
 				do
-					if [[ $key == p || $key == ecs ]]
-					then
-						echo -en `palette_off_l`
-						echo -en $paper"\e[0m"
-						open_palette='close'
-						break
-					elif [[ $key == space ]]
-					then
-						focus_color_code=$((palette_focus-1))
-						echo -en `palette_off_l`
-						echo -en $paper"\e[0m"
-						open_palette='close'
-						break
-					elif [[ $key == up ]]
-					then
-						if [[ $((palette_focus-36)) -gt 0 ]]
-						then
-							palette_focus=$((palette_focus-36))
+					case $key in
+						p)
+							echo -en `palette_off_l`
+							echo -en $paper"\e[0m"
+							open_palette='close'
+							break
+							;;
+						space)
+							focus_color_code=$((palette_focus-1))
+							echo -en `palette_off_l`
+							echo -en $paper"\e[0m"
+							open_palette='close'
+							break
+							;;
+						up)
+							if [[ $palette_focus -le 16 ]]
+							then
+								palette_focus=$((palette_focus+232))
+							elif [[ $palette_focus -ge 17 && $palette_focus -le 32 ]]
+							then
+								palette_focus=$((palette_focus-16))
+							elif [[ $palette_focus -ge 33 && $palette_focus -le 40 ]]
+							then
+								palette_focus=$(($palette_focus+216))
+							elif [[ $palette_focus -ge 41 && $palette_focus -le 52 ]]
+							then
+								palette_focus=$(($palette_focus+180))
+							else
+								palette_focus=$(($palette_focus-36))
+							fi
 							echo -en $palette"\e[0m"
-						else
-							palette_focus=$((palette_focus+220))
+							;;
+						down)
+							if [[ $palette_focus -ge 233 && $palette_focus -le 248 ]]
+							then
+								palette_focus=$(($palette_focus-232))
+							elif [[ $palette_focus -ge 1 && $palette_focus -le 16 ]]
+							then
+								palette_focus=$((palette_focus+16))
+							elif [[ $palette_focus -ge 221 && $palette_focus -le 232 ]]
+							then
+								palette_focus=$((palette_focus-180))
+							elif [[ $palette_focus -ge 249 && $palette_focus -le 256 ]]
+							then
+								palette_focus=$((palette_focus-216))
+							else
+								palette_focus=$(($palette_focus+36))
+							fi
 							echo -en $palette"\e[0m"
-						fi
-					elif [[ $key == down ]]
-					then
-						if [[ $((palette_focus+36)) -le 256 ]]
-						then
-							palette_focus=$((palette_focus+36))
+							;;
+						left)
+							if [[ $palette_focus -eq 1 ]]
+							then
+								palette_focus=16
+							elif [[ $palette_focus -eq 233 ]]
+							then
+								palette_focus=256
+							elif [[ $((((palette_focus+19))%36)) -eq 0 ]]
+							then
+								palette_focus=$((palette_focus+35))
+							else
+								palette_focus=$((palette_focus-1))
+							fi
 							echo -en $palette"\e[0m"
-						else
-							palette_focus=$((palette_focus-220))
+							;;
+						right)
+							if [[ $palette_focus+1 -eq 16 ]]
+							then
+								palette_focus=1
+							elif [[ $palette_focus -eq 256 ]]
+							then
+								palette_focus=233
+							elif [[ $((((palette_focus-16))%36)) -eq 0 ]]
+							then
+								palette_focus=$((palette_focus-35))
+							else
+								palette_focus=$((palette_focus+1))
+							fi
 							echo -en $palette"\e[0m"
-						fi
-					elif [[ $key == left ]]
-					then
-						if [[ $((palette_focus-1)) -gt 0 ]]
-						then
-							palette_focus=$((palette_focus-1))
-							echo -en $palette"\e[0m"
-						else
-							palette_focus=256
-							echo -en $palette"\e[0m"
-						fi
-					elif [[ $key == right ]]
-					then
-						if [[ $((palette_focus+1)) -le 256 ]]
-						then
-							palette_focus=$((palette_focus+1))
-							echo -en $palette"\e[0m"
-						else
-							palette_focus=1
-							echo -en $palette"\e[0m"
-						fi
-					fi
+							;;
+					esac
 #					echo -en "\e[40;1f""\e[0m"palette_focus=$palette_focus
 					unset key
 					parity=`date +%s`
