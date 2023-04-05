@@ -1,10 +1,13 @@
 #!/bin/bash
-if [[ $1 == --help || $1 == -h ]]
+if [[ $1 == --help ]]
 then
-	echo "Usage : $0 [file]"
+	echo "Usage : $0 [file]
+Options:
+	-w	New File width Pixels (default 64)
+	-h	New File Hight Pixels (default 64)"
 	exit
 else
-	./picture_r.sh $1 &
+	./picture_r.sh $@ &
 fi
 puid=`ps -ef|grep picture_r.sh|grep bash|awk '{print $2}'`
 esc=`echo -en "\033"`
@@ -26,6 +29,9 @@ trap 'my_exit_l' 2
 		case $akey in
 		$empty)
 			key=space
+			;;
+		q)
+			my_exit_l
 			;;
 		r)
 			key=r
