@@ -7,6 +7,10 @@ echo -e \`cat xxx.save\`"\e[0m"
 
 https://github.com/callcz/picture_r/blob/main/%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B%A9%E5%8C%BA%E5%9F%9F_20230106134646.png?raw=true
 
+运行./picture.sh启动
+
+运行./run.sh可屏蔽乱七八糟的错误报告
+
 已知待修正：
 
 调色板方向键选色逻辑 [20230406已修正]
