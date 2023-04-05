@@ -9,7 +9,7 @@ https://github.com/callcz/picture_r/blob/main/%E6%88%AA%E5%9B%BE_%E9%80%89%E6%8B
 
 运行./picture.sh启动
 
-运行./run.sh可屏蔽乱七八糟的错误报告
+运行./run.sh启动可屏蔽乱七八糟的错误报告
 
 已知待修正：
 
