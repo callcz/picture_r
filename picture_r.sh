@@ -25,6 +25,7 @@ trap 'key=s' 21
 trap 'key=m' 23
 trap 'key=p' 24
 
+#参数
 while [[ -n $@ ]]
 do
 	case $1 in
@@ -78,12 +79,12 @@ then
 fi
 hight_real=$((hight/2))
 total=$((width*hight_real))
+
 #功能键提示
 fun_tips_l(){
 	local begin=$((hight_real+1))
 	printf "\e[$begin;1H""\e[0m""P=PALETTE SPACE=SELECT/DRAW S=SAVE M=FOCUS R=REFRESH MOVE=ARROW_KEYS color=$focus_color_code Q=EXIT"
 }
-
 
 #保存
 save_l(){
@@ -123,7 +124,6 @@ then
 
 fi
 fun_tips_l
-
 
 #调色板
 palette_l(){
@@ -166,12 +166,12 @@ palette_off_l(){
 		fi
 		if [[ $i -le 15 ]]
 		then
-			echo -n "\e[${y:=$((focus_row+8))};${x:=$((focus_x+1))}f""\e[0m "
+			echo -n "\e[${y:=$((focus_row+1))};${x:=$((focus_x+1))}f""\e[0m "
 		elif [[ $i -ge 232 ]]
 		then
-			echo -n "\e[${y:=$((focus_row+7))};${x:=$((focus_x+1))}f""\e[0m "
+			echo -n "\e[${y:=$((focus_row+8))};${x:=$((focus_x+1))}f""\e[0m "
 		else
-			echo -n "\e[${y:=$((focus_row+1))};${x:=$((focus_x+1))}f""\e[0m "
+			echo -n "\e[${y:=$((focus_row+2))};${x:=$((focus_x+1))}f""\e[0m "
 		fi
 		if [[ $x -lt $((focus_x+36)) ]]
 		then
@@ -180,6 +180,7 @@ palette_off_l(){
 			x=$((focus_x+1))
 			((y++))
 		fi
+		echo -en "\e[$((focus_row+9));$((focus_x+1))f""\e[0m " "\e[$((focus_row+9));$((focus_x+2))f""\e[0m " "\e[$((focus_row+9));$((focus_x+3))f""\e[0m "
 	done
 	fun_tips_l
 }
@@ -233,7 +234,8 @@ do
 		fi
 	done
 	echo -en $paper"\e[0m"
-	#按键处理
+
+#按键处理
 	case $key in
 		up)
 			((focus_y--))
@@ -373,7 +375,7 @@ do
 							echo -en $palette"\e[0m"
 							;;
 					esac
-#					echo -en "\e[40;1f""\e[0m"palette_focus=$palette_focus
+					echo -en  "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+2))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+3))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[48;5;0;38;5;15m$((palette_focus-1))"
 					unset key
 					parity=`date +%s`
 					if [[ $((${parity:-0}%2)) == 0 ]]
