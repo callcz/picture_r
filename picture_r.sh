@@ -184,6 +184,11 @@ palette_off_l(){
 	done
 	fun_tips_l
 }
+palette_ref_l(){
+	echo -en $palette"\e[0m"
+	echo -en $(echo $focus_color|awk -F';' -v _focus=$((${palette_focus:=1}-1)) -v OFS=';' '{gsub(/^[0-9]*/,_focus,$7);print}')
+	echo -en "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[0m ""\e[$((((((focus_y+1))/2))+9));$((focus_x+2))f""\e[0m ""\e[$((((((focus_y+1))/2))+9));$((focus_x+3))f""\e[0m "
+}
 
 #填色
 space_l(){
@@ -292,6 +297,7 @@ do
 				echo -en $palette"\e[0m"
 				open_palette='open'
 				unset key
+				echo -en $(echo $focus_color|awk -F';' -v _focus=$((${palette_focus:=1}-1)) -v OFS=';' '{gsub(/^[0-9]*/,_focus,$7);print}')
 				while :
 				do
 					case $key in
@@ -324,7 +330,7 @@ do
 							else
 								palette_focus=$(($palette_focus-36))
 							fi
-							echo -en $palette"\e[0m"
+							palette_ref_l
 							;;
 						down)
 							if [[ $palette_focus -ge 233 && $palette_focus -le 248 ]]
@@ -342,7 +348,7 @@ do
 							else
 								palette_focus=$(($palette_focus+36))
 							fi
-							echo -en $palette"\e[0m"
+							palette_ref_l
 							;;
 						left)
 							if [[ $palette_focus -eq 1 ]]
@@ -357,10 +363,10 @@ do
 							else
 								palette_focus=$((palette_focus-1))
 							fi
-							echo -en $palette"\e[0m"
+							palette_ref_l
 							;;
 						right)
-							if [[ $palette_focus+1 -eq 16 ]]
+							if [[ $palette_focus -eq 16 ]]
 							then
 								palette_focus=1
 							elif [[ $palette_focus -eq 256 ]]
@@ -372,19 +378,17 @@ do
 							else
 								palette_focus=$((palette_focus+1))
 							fi
-							echo -en $palette"\e[0m"
+							palette_ref_l
 							;;
 					esac
-					echo -en  "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+2))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+3))f""\e[0m " "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[48;5;0;38;5;15m$((palette_focus-1))"
+					echo -en "\e[$((((((focus_y+1))/2))+9));$((focus_x+1))f""\e[48;5;0;38;5;15m$((palette_focus-1))"
 					unset key
 					parity=`date +%s`
 					if [[ $((${parity:-0}%2)) == 0 ]]
 					then
 						echo -en $(echo $palette|awk -v palette_focus=${palette_focus:=1} '{print $palette_focus}')▒
-						echo -en $(echo $focus_color|awk -F';' -v _focus=$((${palette_focus:=1}-1)) -v OFS=';' '{gsub(/^[0-9]*/,_focus,$7);print}')
 					else
 						echo -en $(echo $palette|awk -v palette_focus=${palette_focus:=1} '{gsub("0m","15m",$palette_focus);print $palette_focus}')▒
-						echo -en $focus_color
 					fi
 				done
 			else
