@@ -3,8 +3,8 @@ if [[ $1 == --help ]]
 then
 	echo "Usage : $0 [file]
 Options:
-	-w	New File width Pixels (default 64)
-	-h	New File Hight Pixels (default 64)"
+	-w	New File width Pixels (default 32)
+	-h	New File Hight Pixels (default 16)"
 	exit
 else
 	./picture_r.sh $@ &
