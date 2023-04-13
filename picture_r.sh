@@ -71,11 +71,11 @@ do
 done
 if [[ ! $width ]]
 then
-	width=64
+	width=32
 fi
 if [[ ! $hight ]]
 then
-	hight=64
+	hight=16
 fi
 hight_real=$((hight/2))
 total=$((width*hight_real))
